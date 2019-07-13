@@ -3,8 +3,8 @@ title: "simulation_demo"
 author: "Leanne Dong"
 date: "13/07/2019"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 header-includes: \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
 ---
 
@@ -58,8 +58,8 @@ rpoisson <- function(Tmax = NULL, Nmax = NULL, lambda) {
 #r1<-rpoisson(Tmax=10,lambda=1)
 tmax=100
 r1<-rpoisson(Tmax=tmax,lambda=1)
-#t_series <- seq(0,max(r1), by = max(r1)/tmax)
-t_series <- seq(0,length(r1)-1,1)
+t_series <- seq(0,max(r1), length=length(r1))
+#t_series <- seq(0,length(r1)-1,1)
 plot(t_series,r1)
 ```
 
