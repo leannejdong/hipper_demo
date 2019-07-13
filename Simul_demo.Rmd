@@ -1,0 +1,72 @@
+---
+title: "simulation_demo"
+author: "Leanne Dong"
+date: "13/07/2019"
+output:
+  pdf_document: default
+  html_document: default
+header-includes: \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+---
+
+# Poisson process
+
+We will simulate Poisson process by first principle.
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\SetAlgoLined
+\KwResult{Write here the result}
+\SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+\Input{ Tmax or Nmax, $\lambda$}
+\Output{$S(t)$}
+\textbf{Initialization} $t=0$, $k=0$, $S=0$.
+\BlankLine
+\While{ t<Tmax}{
+    \textbf{Draw} $r\sim U(0,1)$.\;
+    $t=t-\ln(r)/\lambda$.\;
+    $k=k+1$, $S(k)=t$\;
+}
+\caption{Simulation of event times of a Poisson process with rate $\lambda$ until time $T$
+}
+\end{algorithm} 
+
+```{r}
+rpoisson <- function(Tmax = NULL, Nmax = NULL, lambda) {
+    
+    # we can have both NULL or both set at the same time.
+    if ( !xor(is.null(Tmax), is.null(Nmax)) ) stop("Need to set one (and only one) of Nmax or Tmax")
+    
+    t = 0
+    k = 0
+    S = vector()
+    
+    while (T) {
+        r <- runif(1)
+        t <- t - log(r) / lambda
+        k <- k + 1
+        S <- c(S, t)
+        
+        if (!is.null(Tmax) && (t >= Tmax)) break;
+        if (!is.null(Nmax) && (length(S) >= Nmax)) break;
+    }
+    
+    (S)
+}
+```
+
+```{r}
+#r1<-rpoisson(Tmax=10,lambda=1)
+tmax=100
+r1<-rpoisson(Tmax=tmax,lambda=1)
+#t_series <- seq(0,max(r1), by = max(r1)/tmax)
+t_series <- seq(0,length(r1)-1,1)
+plot(t_series,r1)
+```
+
+
+
+
+
+
+
+
