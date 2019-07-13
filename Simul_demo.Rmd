@@ -3,14 +3,14 @@ title: "simulation_demo"
 author: "Leanne Dong"
 date: "13/07/2019"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 header-includes: \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
 ---
 
 # Poisson process
 
-We will simulate Poisson process by first principle.
+We will simulate Poisson process by first principle. Algorithm taken from [epfl](http://transp-or.epfl.ch/courses/OptSim2012/slides/05b-poisson.pdf)
 
 \begin{algorithm}[H]
 \DontPrintSemicolon
