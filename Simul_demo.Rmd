@@ -6,25 +6,34 @@ output:
   pdf_document: default
   html_document: default
 header-includes: \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+                 \newcommand\mycommfont[1]{\footnotesize\ttfamily\textcolor{blue}{#1}}
+                 \SetCommentSty{mycommfont}
 ---
 
 # Poisson process
 
 We will simulate Poisson process by first principle. Algorithm taken from [epfl](http://transp-or.epfl.ch/courses/OptSim2012/slides/05b-poisson.pdf)
 
+## Homogeneous Poisson Process
+
 \begin{algorithm}[H]
 \DontPrintSemicolon
 \SetAlgoLined
 \KwResult{Write here the result}
 \SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
-\Input{ Tmax or Nmax, $\lambda$}
-\Output{$S(t)$}
-\textbf{Initialization} $t=0$, $k=0$, $S=0$.
+\Input{ $T$ or $N$, $\lambda$}
+%\Output{$S(t)$}
+\textbf{Initialization} $T=0$, $k=0$, $S=vector()$.
 \BlankLine
-\While{ t<Tmax}{
+\While{ true\tcp*{$t<T$ or $n\le N$}
+ }{   
     \textbf{Draw} $r\sim U(0,1)$.\;
-    $t=t-\ln(r)/\lambda$.\;
-    $k=k+1$, $S(k)=t$\;
+    \textbf{Set} $t=t-\ln(r)/\lambda$.\;
+    \eIf{$t_{n}>T$}{
+    \text{return} $\{t_k\}_{k=1,2,\cdots,n-1}$\;
+    }{
+    $n=n+1$\;
+    }
 }
 \caption{Simulation of event times of a Poisson process with rate $\lambda$ until time $T$
 }
@@ -63,6 +72,96 @@ t_series <- seq(0,max(r1), length=length(r1))
 plot(t_series,r1)
 ```
 
+## Nonhomogeneous Poisson process
+
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\SetAlgoLined
+\KwResult{Write here the result}
+\SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+\Input{ $T$ or $N$, $\lambda(t)$}
+%\Output{$S(t)$}
+\textbf{Initialization} $T=0$ or $n=m=0$, $\lambda^*=\sup_{0\le t\le T}\lambda(t)$.
+\BlankLine
+\While{ $\tau_m<T$ }
+ {   
+    \textbf{Draw} $r\sim U(0,1)$.\;
+    \textbf{Set} $\tau_m=\tau_m-\ln(r)/\lambda^*$.\;
+    \textbf{Draw} $s\sim U(0,1)$.\;
+    \If{$s\le \frac{\lambda(\tau_m)}{\lambda^*}$}{
+    \text{return} $t_n=\tau_m$\;
+                  $n=n+1$\;
+    }{
+    $m=m+1$\;}
+ }
+
+
+\eIf{$t_n\le T$}{
+\text{return} $\{t_k,k=1,2,\cdots,n-1\}$
+}{
+\text{return} $\{t_k,k=1,2,\cdots,n-2\}$
+}
+
+
+\caption{Simulation of event times of a Inhomogeneous Poisson process with rate $\lambda$ until time $T$
+}
+\end{algorithm} 
+
+```{r}
+rnhpoisson <- function(Tmax = NULL, Nmax = NULL, FUN, LambdaMax, ...) {
+    
+    # we can have both NULL or both set at the same time.
+    if ( !xor(is.null(Tmax), is.null(Nmax)) ) stop("Need to set one (and only one) of Nmax or Tmax")
+    if (LambdaMax == 0) return(NA) ## means we cannot get any event
+    
+    t = 0
+    k = 0
+    S = vector()
+    
+    while (T) {
+        r <- runif(1)
+        t <- t - log(r) / LambdaMax
+        
+        s <- runif(1)
+        fnct <- FUN(t, ...)
+        thr <- fnct/LambdaMax
+        if ( s <= thr) {
+            k <- k + 1
+            S <- c(S, t)
+        }
+        
+        ## exit loop at either time max, number max, or when the intensity at the current timestep is zero
+        if (!is.null(Tmax) && (t >= Tmax)) break;
+        if (!is.null(Nmax) && (length(S) >= Nmax)) break;
+        # if (fnct < .Machine$double.eps) break;
+        if (fnct < 10^-4) break; ## TODO: changed this so that simulation ends when no child
+    }
+    
+    if (length(S) == 0) S <- NA
+    return(S)
+}
+```
+
+
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\SetAlgoLined
+\KwResult{Write here the result}
+\SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+\Input{ Tmax or Nmax, $\lambda(t)$}
+\Output{$S(t)$}
+\textbf{Initialization}  $t=0$, $k=0$, $S=vector()$.
+\BlankLine
+\While{ t<Tmax}{
+    \textbf{Draw} $r\sim U(0,1)$.\;
+    $t=t-\ln(r)/\lambda^*$.\;
+    \textbf{Draw} $s\sim U(0,1)$. \textbf{Define} a new variable $\lambda(t)$ \;
+    If $s\le \frac{\lambda(t)}{\lambda^*}$, set $k=k+1$ and $S(k)=t$\;
+}
+\caption{Simulation of event times of a Poisson process with rate $\lambda$ until time $T$
+}
+\end{algorithm} 
 
 
 
